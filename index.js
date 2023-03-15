@@ -1,5 +1,3 @@
-// const { validatePath, absolutePath } = require('./funciones.js');
-
 const fs = require('fs')
 const path = require('path');
 
@@ -44,24 +42,6 @@ const containsMdFiles = (seventhPath) => {
  });
 };
 
-// const mdLinks = (path, options) => {
-//   return new Promise((resolve, reject) => {
-// // Identificar si la ruta existe.
-//   if(validatePath(path)){
-//     resolve('La ruta existe');
-//   }else {
-//   // Si no existe la ruta se rechaza la promesa.
-//   reject('La ruta no existe'); 
-//   }
-//   // Identificar si la ruta es absoluta
-//   if(absolutePath(path)){
-//     resolve('La ruta es absoluta');
-//   }else {
-//   // Si la ruta es relatiiva se rechaza la promesa.
-//   reject('La ruta es relativa'); 
-//   }
-//   });
-//  }
 const mdLinks = (path, options) => {
   // let messageEmptyDir;
   return new Promise((resolve, reject) => {
@@ -119,8 +99,5 @@ const mdLinks = (path, options) => {
 
 module.exports = {
   mdLinks,
-  // validatePath,
-  // absolutePath,
-  // transformPath,
-  // isADirectory,
+ 
 };
