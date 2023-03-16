@@ -76,6 +76,18 @@ const isADirectory = (fourthPath) => {
 //  };
 //  containsMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorio con md')
  
+const readFile = (eighthPath,callback) => {
+  fs.readFile(eighthPath, 'utf8', (data) => {
+        if (error) {
+       console.error(error);
+     return;
+        }
+        callback(data)
+  });
+};
+  // readFile('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioConMd/bye.md', (data) => {
+  //   console.log(data);
+  // });
  
 // module.exports = {
 //   validatePath,

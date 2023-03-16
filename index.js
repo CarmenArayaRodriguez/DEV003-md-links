@@ -24,6 +24,9 @@ const isAMdFile = (fifthPath) => {
 const emptyDirectory = (sixthPath, callback) => {
   return fs.readdir(sixthPath, callback);
 }
+// const emptyDirectory = (sixthPath) => {
+//   return fs.readdirSync(sixthPath);
+// }
 
 const containsMdFiles = (seventhPath) => {
   fs.readdir(seventhPath, (error, files) => {
@@ -31,6 +34,8 @@ const containsMdFiles = (seventhPath) => {
       console.error(error);
       return;
 }
+// const containsMdFiles = (seventhPath) => {
+//   const files = fs.readdirSync(seventhPath);
    // Buscar archivos .md en un directorio
    const hasMdFiles = files.some(file => path.extname(file) === '.md');
    if (hasMdFiles) {
@@ -39,7 +44,17 @@ const containsMdFiles = (seventhPath) => {
    } else {
      console.log('El directorio no contiene archivos .md');
    }
- });
+  });
+};
+
+const readingAFile = (eighthPath,callback) => {
+  fs.readFile(eighthPath, 'utf8', (error, data) => {
+        if (error) {
+       callback(error);
+  } else{
+    callback(null, data);
+    }
+  });
 };
 
 const mdLinks = (path, options) => {
@@ -87,6 +102,15 @@ const mdLinks = (path, options) => {
           // La nueva ruta
           resolve(messageMdFile  + `La nueva ruta es : ${absolutePath}`);
         }
+        // Leer el archivo e imprimir el contenido
+        readingAFile(path, (error, data) => {
+          if (error) {
+            reject(error);
+          } else {
+            console.log(data);
+            resolve(messageMdFile);
+          }
+        });
       } else {
         reject(`La ruta ${path} no es un directorio ni un archivo .md`);
       }

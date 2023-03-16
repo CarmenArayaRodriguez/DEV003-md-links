@@ -1,5 +1,4 @@
-const { mdLinks, absolutePath, transformPath, isADirectory} = require('./index.js');
-// const { validatePath } = require('./funciones.js');
+const { mdLinks } = require('./index.js');
 
 const path = process.argv[2];
 mdLinks(path)
