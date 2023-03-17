@@ -1,41 +1,44 @@
 const fs = require('fs')
 const path = require('path');
 
+// Determina si es una ruta válida
 const validatePath = (firstPath) => {
   return fs.existsSync(firstPath)
 }
 
+// Determina si la ruta es absoluta
 const absolutePath = (secondPath) => {
   return path.isAbsolute(secondPath)
 }
 
+// Transforma ruta relativa en absoluta
 const transformPath = (thirdPath) => {
   return path.resolve(thirdPath);
 } 
 
+// Determina si una ruta es un directorio
 const isADirectory = (fourthPath) => {
   return fs.statSync(fourthPath).isDirectory();
 }
 
+// Determina si un archivo es .md
 const isAMdFile = (fifthPath) => {
   return path.extname(fifthPath).toLowerCase() === '.md';
 }
 
+// Indica si un directorio está vacío
 const emptyDirectory = (sixthPath, callback) => {
   return fs.readdir(sixthPath, callback);
 }
-// const emptyDirectory = (sixthPath) => {
-//   return fs.readdirSync(sixthPath);
-// }
 
+//Indica si un directorio tiene archivos .md
 const containsMdFiles = (seventhPath) => {
   fs.readdir(seventhPath, (error, files) => {
     if (error) {
       console.error(error);
       return;
 }
-// const containsMdFiles = (seventhPath) => {
-//   const files = fs.readdirSync(seventhPath);
+
    // Buscar archivos .md en un directorio
    const hasMdFiles = files.some(file => path.extname(file) === '.md');
    if (hasMdFiles) {
@@ -47,6 +50,7 @@ const containsMdFiles = (seventhPath) => {
   });
 };
 
+// Lee el archivo e imprime el contenido
 const readingAFile = (eighthPath,callback) => {
   fs.readFile(eighthPath, 'utf8', (error, data) => {
         if (error) {
@@ -58,7 +62,6 @@ const readingAFile = (eighthPath,callback) => {
 };
 
 const mdLinks = (path, options) => {
-  // let messageEmptyDir;
   return new Promise((resolve, reject) => {
     // Identificar si la ruta existe
     if (validatePath(path)) {
@@ -123,5 +126,4 @@ const mdLinks = (path, options) => {
 
 module.exports = {
   mdLinks,
- 
 };

@@ -1,7 +1,7 @@
 const { mdLinks } = require('./index.js');
 
 const path = process.argv[2];
-mdLinks(path)
+mdLinks(path, options)
 .then((resolve) => {
 	console.log(resolve)
 })
