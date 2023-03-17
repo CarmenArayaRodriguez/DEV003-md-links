@@ -1,6 +1,7 @@
 
  const fs = require('fs')
 const path = require('path');
+const { mdLinks } = require('.');
 
 const validatePath = (firstPath) => {
   return fs.existsSync(firstPath)
@@ -76,18 +77,37 @@ const isADirectory = (fourthPath) => {
 //  };
 //  containsMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorio con md')
  
-const readFile = (eighthPath,callback) => {
-  fs.readFile(eighthPath, 'utf8', (data) => {
-        if (error) {
-       console.error(error);
-     return;
-        }
-        callback(data)
-  });
-};
+// const readFile = (eighthPath,callback) => {
+//   fs.readFile(eighthPath, 'utf8', (data) => {
+//         if (error) {
+//        console.error(error);
+//      return;
+//         }
+//         callback(data)
+//   });
+// };
   // readFile('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioConMd/bye.md', (data) => {
   //   console.log(data);
   // });
+  
+  const extractLinksFromFile = (filePath) => {
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    const linksRegex = /\[([^\]]+)]\((http[s]?:\/\/[^\)]+)\)/gm;
+    const links = [];
+    let match;
+    while ((match = linksRegex.exec(fileContent))) {
+      links.push({
+        href: match[2],
+        text: match[1],
+        file: filePath,
+      });
+    }
+    return links;
+  };
+
+  const printlinks = extractLinksFromFile('/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md');
+  console.log(printlinks)
+
  
 // module.exports = {
 //   validatePath,
