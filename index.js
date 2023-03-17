@@ -61,6 +61,23 @@ const readingAFile = (eighthPath,callback) => {
   });
 };
 
+// Extraer links
+const extractLinksFromFile = (filePath) => {
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  const linksRegex = /\[([^\]]+)]\((http[s]?:\/\/[^\)]+)\)/gm;
+  const links = [];
+  let match;
+  while ((match = linksRegex.exec(fileContent))) {
+    links.push({
+      href: match[2],
+      text: match[1],
+      file: filePath,
+    });
+  }
+  return links;
+};
+
+
 const mdLinks = (path, options) => {
   return new Promise((resolve, reject) => {
     // Identificar si la ruta existe
@@ -114,6 +131,9 @@ const mdLinks = (path, options) => {
             resolve(messageMdFile);
           }
         });
+        // Extraer los enlaces del archivo .md
+        const links = extractLinksFromFile(path);
+        resolve({ messageMdFile, links });
       } else {
         reject(`La ruta ${path} no es un directorio ni un archivo .md`);
       }
