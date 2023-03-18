@@ -27,10 +27,24 @@ const isAMdFile = (fifthPath) => {
 }
 
 // Indica si un directorio está vacío
-const emptyDirectory = (sixthPath, callback) => {
-  return fs.readdir(sixthPath, callback);
+// const emptyDirectory = (sixthPath) => {
+//   return fs.readdir(sixthPath, (error, files) => {
+//     if(error) {
+//       console.error(error);
+//     }else{
+//       console.log(files);
+//       return files.length === 0;
+//     }
+//   });
+// }
+function emptyDirectory(sixthPath) {
+  if (!fs.existsSync(sixthPath)) {
+    throw new Error(`La ruta ${sixthPath} no existe`);
+  }
+  const files = fs.readdirSync(sixthPath);
+  const result = files.length === 0;
+  return result;
 }
-
 //Indica si un directorio tiene archivos .md
 const containsMdFiles = (seventhPath) => {
   fs.readdir(seventhPath, (error, files) => {
@@ -38,7 +52,6 @@ const containsMdFiles = (seventhPath) => {
       console.error(error);
       return;
 }
-
    // Buscar archivos .md en un directorio
    const hasMdFiles = files.some(file => path.extname(file) === '.md');
    if (hasMdFiles) {
@@ -146,4 +159,10 @@ const mdLinks = (path, options) => {
 
 module.exports = {
   mdLinks,
+  validatePath,
+  absolutePath,
+  transformPath,
+  isADirectory,
+  isAMdFile,
+  emptyDirectory,
 };

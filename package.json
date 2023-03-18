@@ -10,10 +10,10 @@
     "commit": "a63a770ea33332882790401851df337734b0b734"
   },
   "dependencies": {
-    "eslint": "^8.35.0",
     "jest": "^29.5.0"
   },
   "devDependencies": {
+    "eslint": "^8.36.0",
     "jest": "^27.0.1"
   },
   "description": "## Índice",
