@@ -27,24 +27,10 @@ const isAMdFile = (fifthPath) => {
 }
 
 // Indica si un directorio está vacío
-// const emptyDirectory = (sixthPath) => {
-//   return fs.readdir(sixthPath, (error, files) => {
-//     if(error) {
-//       console.error(error);
-//     }else{
-//       console.log(files);
-//       return files.length === 0;
-//     }
-//   });
-// }
-function emptyDirectory(sixthPath) {
-  if (!fs.existsSync(sixthPath)) {
-    throw new Error(`La ruta ${sixthPath} no existe`);
-  }
-  const files = fs.readdirSync(sixthPath);
-  const result = files.length === 0;
-  return result;
+const emptyDirectory = (sixthPath, callback) => {
+  return fs.readdir(sixthPath, callback);
 }
+
 //Indica si un directorio tiene archivos .md
 const containsMdFiles = (seventhPath) => {
   fs.readdir(seventhPath, (error, files) => {
@@ -52,6 +38,7 @@ const containsMdFiles = (seventhPath) => {
       console.error(error);
       return;
 }
+
    // Buscar archivos .md en un directorio
    const hasMdFiles = files.some(file => path.extname(file) === '.md');
    if (hasMdFiles) {
@@ -128,14 +115,19 @@ const mdLinks = (path, options) => {
         const messageMdFile = `La ruta ${path} es un archivo .md`;
         // Identificar si la ruta del archivo .md es absoluta
         if (absolutePath(path)) {
-          resolve(`${messageMdFile}`);
+          // resolve(`${messageMdFile}`);
+          // Extraer los enlaces del archivo .md
+          const links = extractLinksFromFile(path);
+          resolve({ path, messageMdFile, links });
         } else {
           // Transformar la ruta relativa en absoluta
           const absolutePath = transformPath(path);
           // La nueva ruta
           resolve(messageMdFile  + `La nueva ruta es : ${absolutePath}`);
+          const links = extractLinksFromFile(absolutePath);
+          resolve({ path: absolutePath, messageMdFile, links });
         }
-        // Leer el archivo e imprimir el contenido
+        // // Leer el archivo e imprimir el contenido
         readingAFile(path, (error, data) => {
           if (error) {
             reject(error);
@@ -144,7 +136,7 @@ const mdLinks = (path, options) => {
             resolve(messageMdFile);
           }
         });
-        // Extraer los enlaces del archivo .md
+        // // Extraer los enlaces del archivo .md
         const links = extractLinksFromFile(path);
         resolve({ messageMdFile, links });
       } else {
@@ -165,4 +157,6 @@ module.exports = {
   isADirectory,
   isAMdFile,
   emptyDirectory,
+  containsMdFiles,
+  readingAFile,
 };

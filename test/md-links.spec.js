@@ -1,4 +1,4 @@
-const { validatePath, absolutePath, transformPath, isADirectory, isAMdFile, emptyDirectory } = require('../index.js');
+const { validatePath, absolutePath, transformPath, isADirectory, isAMdFile, emptyDirectory, containsMdFiles, readingAFile } = require('../index.js');
 
 describe('validatePath', () => {
   it('Debería devolver true si la ruta existe', () => {
@@ -64,3 +64,33 @@ describe('emptyDirectory', () => {
   });
 });
   
+describe('containsMdFiles', () => {
+  it('Debería devolver un array con los archivos .md', () => {
+    const result = containsMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioConMd');
+    expect(result).toEqual(['bye.md', 'hello.md']);
+  });
+  it('Debería devolver un array vacío si no hay archivos .md', () => {
+    const result = containsMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd');
+    expect(result).toEqual([]);
+  });
+});
+
+describe('readingAFile', () => {
+  it('Debería devolver ', () => {
+    const result = readingAFile('/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md');
+    expect(result).toEqual(['Hola', 'Esto es una prueba', '[Hola Google](https://www.google.com)']);
+  });
+  it('Debería devolver ', () => {
+    const result = readingAFile('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd');
+    expect(result).toEqual([]);
+  });
+});
+
+
+
+
+
+
+
+
+
