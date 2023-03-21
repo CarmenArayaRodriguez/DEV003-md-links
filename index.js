@@ -31,7 +31,7 @@ const emptyDirectory = (sixthPath, callback) => {
   return fs.readdir(sixthPath, callback);
 }
 
-//Indica si un directorio tiene archivos .md
+// //Indica si un directorio tiene archivos .md
 const containsMdFiles = (seventhPath) => {
   fs.readdir(seventhPath, (error, files) => {
     if (error) {
@@ -40,13 +40,22 @@ const containsMdFiles = (seventhPath) => {
 }
 
    // Buscar archivos .md en un directorio
-   const hasMdFiles = files.some(file => path.extname(file) === '.md');
-   if (hasMdFiles) {
-     console.log('El directorio contiene archivos .md:');
-     console.log(files)
-   } else {
-     console.log('El directorio no contiene archivos .md');
-   }
+const hasMdFiles = (dir) => {
+  let mdFiles = [];
+
+  fs.readdirSync(dir).forEach((file) => {
+    const filePath = path.join(dir, file);
+    const stat = fs.statSync(filePath);
+
+    if (stat.isDirectory()) {
+      mdFiles = mdFiles.concat(hasMdFiles(filePath));
+    } else if (path.extname(file) === '.md') {
+      mdFiles.push(filePath);
+    }
+  });
+
+  return mdFiles;
+};
   });
 };
 
@@ -62,21 +71,34 @@ const readingAFile = (eighthPath,callback) => {
 };
 
 // Extraer links
-const extractLinksFromFile = (filePath) => {
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  const linksRegex = /\[([^\]]+)]\((http[s]?:\/\/[^\)]+)\)/gm;
-  const links = [];
-  let match;
-  while ((match = linksRegex.exec(fileContent))) {
-    links.push({
-      href: match[2],
-      text: match[1],
-      file: filePath,
+const extractLinksFromFile = (directory) => {
+  let links = [];
+  try {
+    const files = fs.readdirSync(directory);
+    files.forEach((file) => {
+      const filePath = path.join(directory, file);
+      const stats = fs.statSync(filePath);
+      if (stats.isDirectory()) {
+        links = links.concat(extractLinksFromFile(filePath));
+      } else if (path.extname(file) === ".md") {
+        const archivoMD = fs.readFileSync(filePath, "utf-8");
+        const regex = /\[(.*)\]\((http[s]?:\/\/[^\)]*)\)/gm;
+        let match;
+        while ((match = regex.exec(archivoMD))) {
+          const link = {
+            href: match[2],
+            text: match[1],
+            file: filePath,
+          };
+          links.push(link);
+        }
+      }
     });
-  }
+   } catch (error) {
+    console.error(`Error al leer el directorio: ${directory}`, error);
+   }
   return links;
-};
-
+}
 
 const mdLinks = (path, options) => {
   return new Promise((resolve, reject) => {
@@ -93,11 +115,17 @@ const mdLinks = (path, options) => {
           } else {
             if (files.length === 0) {
               // Decir que el directorio está vacío
-            const messageEmptyDir = `La ruta ${path} es un directorio vacío`;
-            resolve(`${messageDirectory} y es absoluta. ${messageEmptyDir}`)
-            }else {
-            // Verificar si el directorio contiene archivos .md
-            containsMdFiles(path);
+              const messageEmptyDir = `La ruta ${path} es un directorio vacío`;
+              resolve(`${messageDirectory} y es absoluta. ${messageEmptyDir}`)
+            } else {
+              // Verificar si el directorio contiene archivos .md
+              const mdFiles = extractLinksFromFile(path);
+              if (mdFiles.length > 0) {
+                resolve(mdFiles);
+              } else {
+                resolve(`La ruta ${path} no contiene archivos .md`);
+              }
+            }
             // Identificar si la ruta del directorio es absoluta
             if (absolutePath(path)) {
               resolve(`${messageDirectory} y es absoluta`);
@@ -108,43 +136,27 @@ const mdLinks = (path, options) => {
               resolve(`La nueva ruta es : ${absolutePath}`);
             }
           }
-        }
-      });
-    } else if (isAMdFile(path)) {
-        // Decir que la ruta es un archivo .md
-        const messageMdFile = `La ruta ${path} es un archivo .md`;
-        // Identificar si la ruta del archivo .md es absoluta
-        if (absolutePath(path)) {
-          // resolve(`${messageMdFile}`);
-          // Extraer los enlaces del archivo .md
+        });
+      } else {
+        // Verificar si el archivo es .md
+        if (isAMdFile(path)) {
           const links = extractLinksFromFile(path);
-          resolve({ path, messageMdFile, links });
+          resolve(links);
+        } else {
+          resolve(`La ruta ${path} no es un archivo .md`);
+        }
+        // Identificar si la ruta es absoluta
+        if (absolutePath(path)) {
+          resolve(`La ruta ${path} es absoluta`);
         } else {
           // Transformar la ruta relativa en absoluta
           const absolutePath = transformPath(path);
           // La nueva ruta
-          resolve(messageMdFile  + `La nueva ruta es : ${absolutePath}`);
-          const links = extractLinksFromFile(absolutePath);
-          resolve({ path: absolutePath, messageMdFile, links });
+          resolve(`La nueva ruta es : ${absolutePath}`);
         }
-        // // Leer el archivo e imprimir el contenido
-        readingAFile(path, (error, data) => {
-          if (error) {
-            reject(error);
-          } else {
-            console.log(data);
-            resolve(messageMdFile);
-          }
-        });
-        // // Extraer los enlaces del archivo .md
-        const links = extractLinksFromFile(path);
-        resolve({ messageMdFile, links });
-      } else {
-        reject(`La ruta ${path} no es un directorio ni un archivo .md`);
       }
     } else {
-      // Si no existe la ruta se rechaza la promesa.
-      reject('La ruta no existe'); 
+      reject(`La ruta ${path} no existe`);
     }
   });
 };
@@ -159,4 +171,5 @@ module.exports = {
   emptyDirectory,
   containsMdFiles,
   readingAFile,
+  extractLinksFromFile,
 };
