@@ -1,4 +1,3 @@
-
 const fs = require('fs')
 const pathLib = require('path')
 const path = require('path');
@@ -98,24 +97,13 @@ hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
   console.error(error);
 });
 
-//Lee el archivo y devulve el texto
-  const readingAFile = (eighthPath,callback) => {
-  fs.readFile(eighthPath, 'utf8', (error, data) => {
-        if (error) {
-       callback(error);
-  } else{
-    callback(null, data);
-    }
-  });
-};
-
 // Extrae los links desde archivos .md
 const extractLinksFromFiles = (path) => {
   let links = [];
   try {
     const files = fs.readdirSync(path);
     files.forEach((file) => {
-      const absolutePath = pathLib.resolve(path, file); 
+      const absolutePath = pathLib.resolve(path, file);
       const stats = fs.statSync(absolutePath);
       if (stats.isDirectory()) {
         links = links.concat(extractLinksFromFiles(absolutePath));
@@ -134,11 +122,12 @@ const extractLinksFromFiles = (path) => {
       }
     });
   } catch (error) {
-    console.error(`Error al leer los archivos: ${path}`, error);
+    console.error(error.message);
   }
   return links;
 };
 
+console.log(extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/NoExiste.md'));
 
 module.exports = {
   validatePath,
