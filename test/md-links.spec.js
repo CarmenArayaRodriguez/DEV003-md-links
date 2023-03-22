@@ -72,16 +72,24 @@ describe('emptyDirectory', () => {
 //   });
 // });
 
-describe('hasMdFiles', () => {
-  it('Debería devolver un array con los archivos .md de directorios y subdirectorios', () => {
-    const result = hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas');
-    expect(result).toEqual(['/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SinTextoNiLinks.md', '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md', '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md', '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md', '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',]);
-  });
-  it('Debería devolver un array vacío si no hay archivos .md', () => {
-    const result = hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd');
-    expect(result).toEqual([]);
-  });
+it('Debería devolver un array con los archivos .md de directorios y subdirectorios', async () => {
+  const result = await hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas');
+  const sortedResult = result.sort();
+  const expected = [
+    '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SinTextoNiLinks.md',
+    '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
+    '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md',
+    '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md',
+    '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
+  ].sort();
+  expect(sortedResult).toEqual(expected);
 });
+
+it('Debería devolver un array vacío si no hay archivos .md', async () => {
+  const result = await hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd');
+  expect(result).toEqual([]);
+});
+
 // describe('readingAFile', () => {
 //   it('Debería devolver ', () => {
 //     const result = readingAFile('/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md');
