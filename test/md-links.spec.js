@@ -1,4 +1,4 @@
-const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory, hasMdFiles, readingAFile } = require('../functions.js');
+const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory, hasMdFiles, extractLinksFromFiles } = require('../functions.js');
 
 describe('validatePath', () => {
   it('Debería devolver true si la ruta existe', () => {
@@ -61,45 +61,71 @@ describe('emptyDirectory', () => {
   });
 });
   
-// describe('containsMdFiles', () => {
-//   it('Debería devolver un array con los archivos .md', () => {
-//     const result = containsMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioConMd');
-//     expect(result).toEqual(['bye.md', 'hola.md']);
-//   });
-//   it('Debería devolver un array vacío si no hay archivos .md', () => {
-//     const result = containsMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd');
-//     expect(result).toEqual([]);
-//   });
-// });
+describe('hasMdFiles', () => {
+  it('Debería devolver un array con los archivos .md de directorios y subdirectorios', () => {
+    return hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
+      .then((result) => {
+        const sortedResult = result.sort();
+        const expected = [          
+          '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SinTextoNiLinks.md',          
+          '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',          
+          '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md',          
+          '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md',          
+          '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',        
+        ].sort();
+        expect(sortedResult).toEqual(expected);
+      });
+  });
 
-it('Debería devolver un array con los archivos .md de directorios y subdirectorios', async () => {
-  const result = await hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas');
-  const sortedResult = result.sort();
-  const expected = [
-    '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SinTextoNiLinks.md',
-    '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
-    '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md',
-    '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md',
-    '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
-  ].sort();
-  expect(sortedResult).toEqual(expected);
+  it('Debería devolver un array vacío si no hay archivos .md', () => {
+    return hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd')
+      .then((result) => {
+        expect(result).toEqual([]);
+      });
+  });
 });
 
-it('Debería devolver un array vacío si no hay archivos .md', async () => {
-  const result = await hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd');
-  expect(result).toEqual([]);
-});
+describe('extractLinksFromFiles', () => {
+  it('debería devolver un arreglo de objetos con información de enlaces dentro de archivos .md', () => {
+    const links = extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas');
+    expect(links).toEqual([
+      {
+        href: 'https://www.24horas.cl/',
+        text: '24 Horas',
+        file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md'
+      },
+      {
+        href: 'https://www.cnnchile.com/',
+        text: 'CNN Chile',
+        file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md'
+      },
+      {
+        href: 'https://github.com/',
+        text: 'GitHub',
+        file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md'
+      },
+      {
+        href: 'https://es-la.facebook.com/',
+        text: 'Facebook',
+        file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md'
+      },
+      {
+        href: 'https://www.google.com',
+        text: 'Hola Google',
+        file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md'
+      }
+    ]);
+  });
 
-// describe('readingAFile', () => {
-//   it('Debería devolver ', () => {
-//     const result = readingAFile('/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md');
-//     expect(result).toEqual(['Hola', 'Esto es una prueba', '[Hola Google](https://www.google.com)']);
-//   });
-//   it('Debería devolver ', () => {
-//     const result = readingAFile('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd');
-//     expect(result).toEqual([]);
-//   });
-// });
+  it('debería devolver un arreglo vacío si no hay archivos .md con enlaces', () => {
+    const links = extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SinTextoNiLinks.md');
+    expect(links).toEqual([]);
+  });
+
+  it('debería devolver un arreglo vacío si el directorio no existe', () => {
+    expect(extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/NoExiste.md')).toEqual([]);
+  });
+});
 
 
 
