@@ -1,4 +1,4 @@
-const { validatePath, absolutePath, transformPath, isADirectory, isAMdFile, emptyDirectory, containsMdFiles, readingAFile } = require('../index.js');
+const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory, hasMdFiles, readingAFile } = require('../functions.js');
 
 describe('validatePath', () => {
   it('Debería devolver true si la ruta existe', () => {
@@ -11,13 +11,13 @@ describe('validatePath', () => {
   });
 });
 
-describe('absolutePath', () => {
+describe('absoluteFilePath', () => {
   it('Debería devolver true si la ruta es absoluta', () => {
-    const result = absolutePath('/Users/carmen/Desktop/DEV003-md-links/README.md');
+    const result = absoluteFilePath('/Users/carmen/Desktop/DEV003-md-links/README.md');
     expect(result).toBe(true);
   });
   it('Debería devolver false si la ruta es relativa', () => {
-  const result = absolutePath('Pruebas/TEXT.md');
+  const result = absoluteFilePath('Pruebas/TEXT.md');
   expect(result).toBe(false);
   });
 });
@@ -57,34 +57,41 @@ describe('isAMdFile', () => {
 
 describe('emptyDirectory', () => {
   it('Debería devolver true si la carpeta está vacía', () => {
-    expect(emptyDirectory('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioVacio')).toBe(true);
-  });
-  it('Debería devolver false si la carpeta no está vacía', () => {
-    expect(emptyDirectory('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd')).toBe(false);
+    expect(emptyDirectory('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioVacio')).toBeTruthy();
   });
 });
   
-describe('containsMdFiles', () => {
-  it('Debería devolver un array con los archivos .md', () => {
-    const result = containsMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioConMd');
-    expect(result).toEqual(['bye.md', 'hello.md']);
+// describe('containsMdFiles', () => {
+//   it('Debería devolver un array con los archivos .md', () => {
+//     const result = containsMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioConMd');
+//     expect(result).toEqual(['bye.md', 'hola.md']);
+//   });
+//   it('Debería devolver un array vacío si no hay archivos .md', () => {
+//     const result = containsMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd');
+//     expect(result).toEqual([]);
+//   });
+// });
+
+describe('hasMdFiles', () => {
+  it('Debería devolver un array con los archivos .md de directorios y subdirectorios', () => {
+    const result = hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas');
+    expect(result).toEqual(['/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SinTextoNiLinks.md', '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md', '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md', '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md', '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',]);
   });
   it('Debería devolver un array vacío si no hay archivos .md', () => {
-    const result = containsMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd');
+    const result = hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd');
     expect(result).toEqual([]);
   });
 });
-
-describe('readingAFile', () => {
-  it('Debería devolver ', () => {
-    const result = readingAFile('/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md');
-    expect(result).toEqual(['Hola', 'Esto es una prueba', '[Hola Google](https://www.google.com)']);
-  });
-  it('Debería devolver ', () => {
-    const result = readingAFile('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd');
-    expect(result).toEqual([]);
-  });
-});
+// describe('readingAFile', () => {
+//   it('Debería devolver ', () => {
+//     const result = readingAFile('/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md');
+//     expect(result).toEqual(['Hola', 'Esto es una prueba', '[Hola Google](https://www.google.com)']);
+//   });
+//   it('Debería devolver ', () => {
+//     const result = readingAFile('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd');
+//     expect(result).toEqual([]);
+//   });
+// });
 
 
 

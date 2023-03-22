@@ -1,4 +1,4 @@
-const { mdLinks } = require('./index.js');
+const { mdLinks} = require('./index.js');
 
 const path = process.argv[2];
 try {
@@ -8,12 +8,12 @@ try {
     mdLinks(path)
       .then(links => {
         console.log(links);
-        if (Array.isArray(links)) {
-          console.log('Estos son los enlaces encontrados:');
-          links.forEach((link) => {
-            console.log(`- ${link.href} (${link.text})`);
-          });
-        }
+        // if (Array.isArray(links)) {
+        //   // console.log('Estos son los enlaces encontrados:');
+        //   links.forEach((link) => {
+        //     // console.log(`- ${link.href} (${link.text})`);
+        //   });
+        // }
       })
       .catch(err => {
         console.error(err.message);
