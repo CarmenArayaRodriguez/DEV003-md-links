@@ -53,6 +53,7 @@ function emptyDirectory(path) {
 const hasMdFiles = (dir) => {
   return new Promise((resolve, reject) => {
     let foundMdFiles = [];
+    let allMdFiles = []; 
     fs.readdir(dir, (err, files) => {
       if (err) {
         reject(err);
@@ -62,7 +63,13 @@ const hasMdFiles = (dir) => {
           const stat = fs.statSync(filePath);
 
           if (stat.isDirectory()) {
-            return hasMdFiles(filePath);
+            return hasMdFiles(filePath)
+              .then((subdirMdFiles) => {
+                allMdFiles = allMdFiles.concat(subdirMdFiles);
+              })
+              .catch((err) => {
+                console.error(err);
+              });
           } else if (path.extname(file) === '.md') {
             foundMdFiles.push(filePath);
             return Promise.resolve();
@@ -73,7 +80,7 @@ const hasMdFiles = (dir) => {
 
         Promise.all(promises)
           .then(() => {
-            resolve(foundMdFiles);
+            resolve(foundMdFiles.concat(allMdFiles)); 
           })
           .catch((err) => {
             reject(err);
@@ -82,6 +89,14 @@ const hasMdFiles = (dir) => {
     });
   });
 };
+
+hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
+.then((result) => {
+  console.log(result);
+})
+.catch((error) => {
+  console.error(error);
+});
 
 //Lee el archivo y devulve el texto
   const readingAFile = (eighthPath,callback) => {
@@ -100,7 +115,7 @@ const extractLinksFromFiles = (path) => {
   try {
     const files = fs.readdirSync(path);
     files.forEach((file) => {
-      const absolutePath = pathLib.resolve(path, file); // Aquí se utiliza el módulo path correctamente
+      const absolutePath = pathLib.resolve(path, file); 
       const stats = fs.statSync(absolutePath);
       if (stats.isDirectory()) {
         links = links.concat(extractLinksFromFiles(absolutePath));

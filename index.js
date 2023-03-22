@@ -1,6 +1,5 @@
 const fs = require('fs')
-const pathLib = require('path')
-const pathModule = require('path');
+const path = require('path')
 const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory,  hasMdFiles, extractLinksFromFiles, } = require('./functions');
 
 const mdLinks = (path, options) => {
