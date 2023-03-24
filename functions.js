@@ -1,6 +1,9 @@
 const fs = require('fs')
+const path = require('path')
 const pathLib = require('path')
-const path = require('path');
+const http = require('https')
+const url = require ('url')
+const axios = require('axios');
 
 // Determina si es una ruta válida
 const validatePath = (firstPath) => {
@@ -99,35 +102,108 @@ hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
 
 // Extrae los links desde archivos .md
 const extractLinksFromFiles = (path) => {
-  let links = [];
-  try {
-    const files = fs.readdirSync(path);
-    files.forEach((file) => {
-      const absolutePath = pathLib.resolve(path, file);
-      const stats = fs.statSync(absolutePath);
+  return new Promise((resolve, reject) => {
+    let links = [];
+    try {
+      if (!fs.existsSync(path)) { 
+        resolve([]);
+        return;
+      }
+      const stats = fs.statSync(path);
       if (stats.isDirectory()) {
-        links = links.concat(extractLinksFromFiles(absolutePath));
-      } else if (isAMdFile(file)) {
-        const archivoMD = fs.readFileSync(absolutePath, "utf-8");
+        const files = fs.readdirSync(path);
+        const promises = [];
+        files.forEach((file) => {
+          const absolutePath = pathLib.resolve(path, file);
+          const subLinksPromise = extractLinksFromFiles(absolutePath);
+          promises.push(subLinksPromise);
+          subLinksPromise.then(subLinks => {
+            links = links.concat(subLinks);
+          });
+        });
+        Promise.all(promises).then(() => {
+          if (links.length === 0) {
+            resolve([]);
+          } else {
+            resolve(links);
+          }
+        });
+      } else if (fs.existsSync(path) && isAMdFile(path)) {
+        const archivoMD = fs.readFileSync(path, "utf-8");
         const regex = /\[(.*)\]\((http[s]?:\/\/[^\)]*)\)/gm;
         let match;
+        const promises = [];
         while ((match = regex.exec(archivoMD))) {
           const link = {
             href: match[2],
             text: match[1],
-            file: absolutePath,
+            file: path,
+            status: "",
           };
           links.push(link);
+          console.log(`Encontrado link: ${link.text} (${link.href}) en archivo: ${path}`);
+          const options = url.parse(link.href);
+          options.method = "HEAD";
+          const promise = new Promise((resolve, reject) => {
+            const req = http.request(options, (res) => {
+              const status = res.statusCode;
+              if (status >= 200 && status < 300) {
+                link.status = `OK - ${status}`;
+              } else {
+                link.status = `Fail - ${status}`;
+              }
+              resolve();
+            });
+            req.on("error", (err) => {
+              console.error(`Error al hacer la solicitud: ${err.message}`);
+              resolve();
+            });
+            req.end();
+          });
+          promises.push(promise);
         }
+        Promise.all(promises).then(() => {
+          if (links.length === 0) {
+            resolve([]);
+          } else {
+            resolve(links);
+          }
+        });
+      } else {
+        resolve([]);
       }
-    });
-  } catch (error) {
-    console.error(error.message);
-  }
-  return links;
+    } catch (error) {
+      console.error(error.message);
+      reject(error);
+    }
+  });
 };
 
-console.log(extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/NoExiste.md'));
+extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
+  .then(links => {
+    console.log(links);
+  })
+  .catch(error => {
+    console.error(error);
+  });
+
+// Determina el status http
+const httpStatus = (url) => {
+  return axios
+    .get(url, { validateStatus: () => true })
+    .then((response) => {
+      return response.status;
+    })
+    .catch((error) => {
+      if (error.response) {
+        throw error.response;
+      } else if (error.request) {
+        throw { statusCode: 500 };
+      } else {
+        throw error;
+      }
+    });
+};
 
 module.exports = {
   validatePath,
@@ -138,4 +214,5 @@ module.exports = {
   emptyDirectory,
   hasMdFiles,
   extractLinksFromFiles,
+  httpStatus,
 }
