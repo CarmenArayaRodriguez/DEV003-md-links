@@ -86,7 +86,7 @@ describe('hasMdFiles', () => {
 });
 
 describe('extractLinksFromFiles', () => {
-it('should return valid links', () => {
+it('Debería devolver los links válidos', () => {
   return extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas').then(links => {
     expect(links).toEqual(
       expect.arrayContaining([
