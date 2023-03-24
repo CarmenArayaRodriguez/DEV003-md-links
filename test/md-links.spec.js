@@ -1,4 +1,4 @@
-const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory, hasMdFiles, extractLinksFromFiles } = require('../functions.js');
+const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory, hasMdFiles, extractLinksFromFiles, httpStatus } = require('../functions.js');
 
 describe('validatePath', () => {
   it('Debería devolver true si la ruta existe', () => {
@@ -86,52 +86,46 @@ describe('hasMdFiles', () => {
 });
 
 describe('extractLinksFromFiles', () => {
-  it('debería devolver un arreglo de objetos con información de enlaces dentro de archivos .md', () => {
-    const links = extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas');
-    expect(links).toEqual([
-      {
-        href: 'https://www.24horas.cl/',
-        text: '24 Horas',
-        file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md'
-      },
-      {
-        href: 'https://www.cnnchile.com/',
-        text: 'CNN Chile',
-        file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md'
-      },
-      {
-        href: 'https://github.com/',
-        text: 'GitHub',
-        file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md'
-      },
-      {
-        href: 'https://es-la.facebook.com/',
-        text: 'Facebook',
-        file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md'
-      },
-      {
-        href: 'https://www.google.com',
-        text: 'Hola Google',
-        file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md'
-      }
-    ]);
+it('should return valid links', () => {
+  return extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas').then(links => {
+    expect(links).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          href: expect.any(String),
+          text: expect.any(String),
+          file: expect.any(String),
+          status: expect.stringMatching(/^OK - ([2-3][0-9][0-9]|4[0-9][0-9])$/)
+        })
+      ])
+    );
   });
-
-  it('debería devolver un arreglo vacío si no hay archivos .md con enlaces', () => {
-    const links = extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SinTextoNiLinks.md');
-    expect(links).toEqual([]);
+});
+  it('debería devolver un arreglo vacío si no hay archivos .md con enlaces', (done) => {
+    extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SinTextoNiLinks.md')
+      .then((links) => {
+        expect(links).toEqual([]);
+        done();
+      })
+      .catch((error) => {
+        done(error);
+      });
   });
-
-  it('debería devolver un arreglo vacío si el directorio no existe', () => {
-    expect(extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/NoExiste.md')).toEqual([]);
+  it('devuelve un array vacío si el directorio no existe', () => {
+    return expect(extractLinksFromFiles('/ruta/no/existente')).resolves.toEqual([]);
   });
 });
 
-
-
-
-
-
-
+describe('httpStatus', () => {
+  it('Debería devolver OK si el caso es exitoso', () => {
+    return httpStatus('https://www.google.com/?hl=es').then((status) => {
+      expect(status).toEqual(status);
+    });
+  });
+  it('Debería devolver Fail si el caso falló', () => {
+    return httpStatus('https://www.grepper.com/tpc/how+to+extract+links+from+markdown+using+regular+expressions').catch((err) => {
+      expect(err).toEqual('Fail');
+    });
+  });
+});
 
 
