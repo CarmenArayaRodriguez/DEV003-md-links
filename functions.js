@@ -290,7 +290,7 @@ const linkStats = (array) => {
     unique,
   };
 };
-console.log(linkStats(statusLinks))
+// console.log(linkStats(statusLinks))
 
 //// Entrega el total de links, la cantidad de links únicos y la cantidad de links rotos 
 const linkStatsComplete = (array) => {
@@ -313,7 +313,7 @@ const linkStatsComplete = (array) => {
     broken
   };
 };
-console.log(linkStatsComplete(statusLinks))
+// console.log(linkStatsComplete(statusLinks))
 
 module.exports = {
   validatePath,

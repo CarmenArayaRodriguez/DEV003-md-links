@@ -1,10 +1,10 @@
 const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory,  hasMdFiles, getLinks, extractLinksFromFiles, } = require('./functions');
 
-const mdLinks = (path, options) => {
+const mdLinks = (path, options = {}) => {
   return new Promise((resolve, reject) => {
     // Identificar si la ruta existe
     if (validatePath(path)) {
-      // Identificar si la ruta es un directorio 
+      // Identificar si la ruta es un directorio
       if (isADirectory(path)) {
         // Identificar que un directorio está vacío
         emptyDirectory(path)
@@ -13,22 +13,22 @@ const mdLinks = (path, options) => {
               // Decir que el directorio está vacío
               const messageEmptyDir = `La ruta ${path} es un directorio vacío`;
               const messageDirectory = `La ruta ${path} existe`;
-              resolve(`${messageDirectory} y es absoluta. ${messageEmptyDir}`)
+              resolve(`${messageDirectory} y es absoluta. ${messageEmptyDir}`);
             } else {
               // Verificar si el directorio contiene archivos .md
               hasMdFiles(path)
-              .then(() => {
-                const links = extractLinksFromFiles(path);
-                resolve(links);
-              })
-              .catch((err) => {
-                reject(err);
-              });
-          }
-        })
-        .catch((err) => {
-          reject(err);
-        });
+                .then(() => {
+                  const links = options.all ? getLinks(path) : extractLinksFromFiles(path);
+                  resolve(links);
+                })
+                .catch((err) => {
+                  reject(err);
+                });
+            }
+          })
+          .catch((err) => {
+            reject(err);
+          });
       } else {
         // Verificar si el archivo es .md
         if (isAMdFile(path)) {
@@ -51,8 +51,13 @@ const mdLinks = (path, options) => {
     }
   });
 };
-
-
+mdLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas', { all: true })
+  .then((links) => {
+    console.log(links);
+  })
+  .catch((err) => {
+    console.error(err);
+  });
 module.exports = {
   mdLinks,
 };
