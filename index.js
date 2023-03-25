@@ -18,7 +18,7 @@ const mdLinks = (path, options = {}) => {
               // Verificar si el directorio contiene archivos .md
               hasMdFiles(path)
                 .then(() => {
-                  const links = options.all ? getLinks(path) : extractLinksFromFiles(path);
+                  const links = options.fromFiles ? extractLinksFromFiles(path) : getLinks(path);
                   resolve(links);
                 })
                 .catch((err) => {
@@ -51,13 +51,11 @@ const mdLinks = (path, options = {}) => {
     }
   });
 };
-mdLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas', { all: true })
+
+mdLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas', { fromFiles: true })
   .then((links) => {
     console.log(links);
   })
   .catch((err) => {
     console.error(err);
   });
-module.exports = {
-  mdLinks,
-};
