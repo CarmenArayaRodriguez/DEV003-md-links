@@ -5,6 +5,50 @@ const http = require('https')
 const url = require ('url')
 const axios = require('axios');
 
+const statusLinks = [
+  {
+    href: 'https://www.24horas.cl/',
+    text: '24 Horas',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
+    status: 'OK - 200'
+  },
+  {
+    href: 'https://www.cnnchile.com/',
+    text: 'CNN Chile Lorem ipsum dolor sit amet, consectetuer',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
+    status: 'OK - 200'
+  },
+  {
+    href: 'https://es-la.facebook.com/',
+    text: 'Facebook',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md',
+    status: 'Fail - 302'
+  },
+  {
+    href: 'https://github.com/',
+    text: 'GitHub',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md',
+    status: 'OK - 200'
+  },
+  {
+    href: 'https://www.google.com',
+    text: 'Google',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
+    status: 'OK - 200'
+  },
+  {
+    href: 'https://www.grepper.com/tpc/how+to+extract+links+from+markdown+using+regular+expressions',
+    text: 'Enlace roto',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
+    status: 'Fail - 404'
+  },
+  {
+    href: 'https://www.google.com',
+    text: 'Google',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
+    status: 'OK - 200'
+  },
+]
 // Determina si es una ruta válida
 const validatePath = (firstPath) => {
   return fs.existsSync(firstPath)
@@ -91,7 +135,6 @@ const hasMdFiles = (dir) => {
     });
   });
 };
-
 // hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
 // .then((result) => {
 //   console.log(result);
@@ -99,21 +142,6 @@ const hasMdFiles = (dir) => {
 // .catch((error) => {
 //   console.error(error);
 // });
-
-// const getLinks = (filePath) => {
-//   const fileContent = fs.readFileSync(filePath, 'utf-8');
-//   const linksRegex = /\[([^\]]+)]\((http[s]?:\/\/[^\)]+)\)/gm;
-//   const links = [];
-//   let match;
-//   while ((match = linksRegex.exec(fileContent))) {
-//     links.push({
-//       href: match[2],
-//       text: match[1],
-//       file: filePath,
-//     });
-//   }
-//   return links;
-// };
 
 // Extrae los links de archivos .md
 const getLinks = (dirPath) => {
@@ -143,8 +171,8 @@ const getLinks = (dirPath) => {
   return links;
 };
 
-const printlinks = getLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas');
-console.log(printlinks)
+// const printlinks = getLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas');
+// console.log(printlinks)
 
 // Extrae los links desde archivos .md y entrega el status
 const extractLinksFromFiles = (path) => {
@@ -224,7 +252,6 @@ const extractLinksFromFiles = (path) => {
     }
   });
 };
-
 // extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
 //   .then(links => {
 //     console.log(links);
@@ -251,6 +278,43 @@ const httpStatus = (url) => {
     });
 };
 
+// Entrega el total de links y la cantidad de links únicos 
+const linkStats = (array) => {
+  const total = `${array.length}`;
+  const unique = (() => {
+    const unique = new Set(array.map((link) => link.href));
+    return `${unique.size}`;
+  })();
+  return {
+    total,
+    unique,
+  };
+};
+console.log(linkStats(statusLinks))
+
+//// Entrega el total de links, la cantidad de links únicos y la cantidad de links rotos 
+const linkStatsComplete = (array) => {
+  const total = `${array.length}`;
+  const unique = (() => {
+    const unique = new Set(array.map((link) => link.href));
+    return `${unique.size}`;
+  })();
+  const broken = (() => {
+    const broken = array.filter((link) => {
+      const statusCode = link.status.match(/\d+/)[0]; 
+      return statusCode >= 400 || statusCode < 200; 
+    });
+    return `${broken.length}`;
+  })();
+
+  return {
+    total,
+    unique,
+    broken
+  };
+};
+console.log(linkStatsComplete(statusLinks))
+
 module.exports = {
   validatePath,
   absoluteFilePath, 
@@ -262,4 +326,6 @@ module.exports = {
   getLinks,
   extractLinksFromFiles,
   httpStatus,
+  linkStats,
+  linkStatsComplete,
 }
