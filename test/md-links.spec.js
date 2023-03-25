@@ -1,4 +1,4 @@
-const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory, hasMdFiles, getLinks, extractLinksFromFiles, httpStatus } = require('../functions.js');
+const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory, hasMdFiles, getLinks, extractLinksFromFiles, httpStatus, linkStats, linkStatsComplete} = require('../functions.js');
 
 describe('validatePath', () => {
   it('Debería devolver true si la ruta existe', () => {
@@ -172,4 +172,108 @@ describe('httpStatus', () => {
   });
 });
 
+describe('linkStats', () => {
+test('Dedería devolver el número de enlaces totales y únicos', () => {
+  const links = [ {
+    href: 'https://www.24horas.cl/',
+    text: '24 Horas',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
+    status: 'OK - 200'
+  },
+  {
+    href: 'https://www.cnnchile.com/',
+    text: 'CNN Chile Lorem ipsum dolor sit amet, consectetuer',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
+    status: 'OK - 200'
+  },
+  {
+    href: 'https://es-la.facebook.com/',
+    text: 'Facebook',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md',
+    status: 'Fail - 302'
+  },
+  {
+    href: 'https://github.com/',
+    text: 'GitHub',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md',
+    status: 'OK - 200'
+  },
+  {
+    href: 'https://www.google.com',
+    text: 'Google',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
+    status: 'OK - 200'
+  },
+  {
+    href: 'https://www.grepper.com/tpc/how+to+extract+links+from+markdown+using+regular+expressions',
+    text: 'Enlace roto',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
+    status: 'Fail - 404'
+  },
+  {
+    href: 'https://www.google.com',
+    text: 'Google',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
+    status: 'OK - 200'
+  },   ];
 
+  const expected = { total: '7', unique: '6' };
+
+  const result = linkStats(links);
+
+  expect(result).toEqual(expected);
+});
+});
+
+describe('linkStatsComplete', () => {
+  test('Debería devolver el número de enlaces totales, únicos y rotos', () => {
+    const links = [ {
+      href: 'https://www.24horas.cl/',
+      text: '24 Horas',
+      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
+      status: 'OK - 200'
+    },
+    {
+      href: 'https://www.cnnchile.com/',
+      text: 'CNN Chile Lorem ipsum dolor sit amet, consectetuer',
+      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
+      status: 'OK - 200'
+    },
+    {
+      href: 'https://es-la.facebook.com/',
+      text: 'Facebook',
+      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md',
+      status: 'Fail - 302'
+    },
+    {
+      href: 'https://github.com/',
+      text: 'GitHub',
+      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md',
+      status: 'OK - 200'
+    },
+    {
+      href: 'https://www.google.com',
+      text: 'Google',
+      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
+      status: 'OK - 200'
+    },
+    {
+      href: 'https://www.grepper.com/tpc/how+to+extract+links+from+markdown+using+regular+expressions',
+      text: 'Enlace roto',
+      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
+      status: 'Fail - 404'
+    },
+    {
+      href: 'https://www.google.com',
+      text: 'Google',
+      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
+      status: 'OK - 200'
+    },   ];
+  
+    const expected = { total: '7', unique: '6', broken:'1' };
+  
+    const result = linkStatsComplete(links);
+  
+    expect(result).toEqual(expected);
+  });
+  });
