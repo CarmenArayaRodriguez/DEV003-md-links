@@ -1,4 +1,4 @@
-const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory, hasMdFiles, extractLinksFromFiles, httpStatus } = require('../functions.js');
+const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory, hasMdFiles, getLinks, extractLinksFromFiles, httpStatus } = require('../functions.js');
 
 describe('validatePath', () => {
   it('Debería devolver true si la ruta existe', () => {
@@ -76,13 +76,57 @@ describe('hasMdFiles', () => {
         expect(sortedResult).toEqual(expected);
       });
   });
-
   it('Debería devolver un array vacío si no hay archivos .md', () => {
     return hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd')
       .then((result) => {
         expect(result).toEqual([]);
       });
   });
+});
+
+describe('getLinks', () => {
+it('Debería devolver los enlaces encontrados', () => {
+  const expectedLinks = [  {
+    href: 'https://www.24horas.cl/',
+    text: '24 Horas',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md'
+  },
+  {
+    href: 'https://www.cnnchile.com/',
+    text: 'CNN Chile Lorem ipsum dolor sit amet, consectetuer',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md'
+  },
+  {
+    href: 'https://github.com/',
+    text: 'GitHub',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md'
+  },
+  {
+    href: 'https://es-la.facebook.com/',
+    text: 'Facebook',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md'
+  },
+  {
+    href: 'https://www.google.com',
+    text: 'Google',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md'
+  },
+  {
+    href: 'https://www.grepper.com/tpc/how+to+extract+links+from+markdown+using+regular+expressions',
+    text: 'Enlace roto',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md'
+  }  ];
+
+  const actualLinks = getLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas');
+
+  expect(actualLinks).toEqual(expectedLinks);
+});
+
+it('Debería devolver un array vacio si no encuentra enlaces', () => {
+  const actualLinks = getLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas/directorioSinMd');
+
+  expect(actualLinks).toEqual([]);
+});
 });
 
 describe('extractLinksFromFiles', () => {
@@ -100,7 +144,7 @@ it('Debería devolver los links válidos', () => {
     );
   });
 });
-  it('debería devolver un arreglo vacío si no hay archivos .md con enlaces', (done) => {
+  it('Debería devolver un arreglo vacío si no hay archivos .md con enlaces', (done) => {
     extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SinTextoNiLinks.md')
       .then((links) => {
         expect(links).toEqual([]);
@@ -110,7 +154,7 @@ it('Debería devolver los links válidos', () => {
         done(error);
       });
   });
-  it('devuelve un array vacío si el directorio no existe', () => {
+  it('Debería devolver un array vacío si el directorio no existe', () => {
     return expect(extractLinksFromFiles('/ruta/no/existente')).resolves.toEqual([]);
   });
 });

@@ -1,4 +1,4 @@
-const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory,  hasMdFiles, extractLinksFromFiles, } = require('./functions');
+const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory,  hasMdFiles, getLinks, extractLinksFromFiles, } = require('./functions');
 
 const mdLinks = (path, options) => {
   return new Promise((resolve, reject) => {
@@ -6,7 +6,7 @@ const mdLinks = (path, options) => {
     if (validatePath(path)) {
       // Identificar si la ruta es un directorio 
       if (isADirectory(path)) {
-      // Identificar que un directorio está vacío
+        // Identificar que un directorio está vacío
         emptyDirectory(path)
           .then((isEmpty) => {
             if (isEmpty) {
@@ -33,18 +33,17 @@ const mdLinks = (path, options) => {
         // Verificar si el archivo es .md
         if (isAMdFile(path)) {
           const links = extractLinksFromFiles([path]);
-          resolve(links);
+          // Identificar si la ruta es absoluta
+          if (absoluteFilePath(path)) {
+            resolve(`La ruta ${path} es absoluta y se encontraron los siguientes enlaces:\n${links.join("\n")}`);
+          } else {
+            // Transformar la ruta relativa en absoluta
+            const absoluteFilePath = transformPath(path);
+            // La nueva ruta
+            resolve(`La nueva ruta es : ${absoluteFilePath} y se encontraron los siguientes enlaces:\n${links.join("\n")}`);
+          }
         } else {
           resolve(`La ruta ${path} no es un archivo .md`);
-        }
-        // Identificar si la ruta es absoluta
-        if (absoluteFilePath(path)) {
-          resolve(`La ruta ${path} es absoluta`);
-        } else {
-          // Transformar la ruta relativa en absoluta
-          const absoluteFilePath = transformPath(path);
-          // La nueva ruta
-          resolve(`La nueva ruta es : ${absoluteFilePath}`);
         }
       }
     } else {

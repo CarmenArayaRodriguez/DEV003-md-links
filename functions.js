@@ -92,15 +92,61 @@ const hasMdFiles = (dir) => {
   });
 };
 
-hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
-.then((result) => {
-  console.log(result);
-})
-.catch((error) => {
-  console.error(error);
-});
+// hasMdFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
+// .then((result) => {
+//   console.log(result);
+// })
+// .catch((error) => {
+//   console.error(error);
+// });
 
-// Extrae los links desde archivos .md
+// const getLinks = (filePath) => {
+//   const fileContent = fs.readFileSync(filePath, 'utf-8');
+//   const linksRegex = /\[([^\]]+)]\((http[s]?:\/\/[^\)]+)\)/gm;
+//   const links = [];
+//   let match;
+//   while ((match = linksRegex.exec(fileContent))) {
+//     links.push({
+//       href: match[2],
+//       text: match[1],
+//       file: filePath,
+//     });
+//   }
+//   return links;
+// };
+
+// Extrae los links de archivos .md
+const getLinks = (dirPath) => {
+  const linksRegex = /\[([^\]]+)]\((http[s]?:\/\/[^\)]+)\)/gm;
+  const links = [];
+  const items = fs.readdirSync(dirPath);
+  items.forEach((item) => {
+    const itemPath = path.join(dirPath, item);
+    const stats = fs.statSync(itemPath);
+
+    if (stats.isFile()) {
+      const fileContent = fs.readFileSync(itemPath, 'utf-8');
+      let match;
+      while ((match = linksRegex.exec(fileContent))) {
+        links.push({
+          href: match[2],
+          text: match[1].slice(0, 50),
+          file: itemPath,
+        });
+      }
+    } else if (stats.isDirectory()) {
+      const subLinks = getLinks(itemPath);
+      links.push(...subLinks);
+    }
+  });
+
+  return links;
+};
+
+const printlinks = getLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas');
+console.log(printlinks)
+
+// Extrae los links desde archivos .md y entrega el status
 const extractLinksFromFiles = (path) => {
   return new Promise((resolve, reject) => {
     let links = [];
@@ -136,7 +182,7 @@ const extractLinksFromFiles = (path) => {
         while ((match = regex.exec(archivoMD))) {
           const link = {
             href: match[2],
-            text: match[1],
+            text: match[1].slice(0,50),
             file: path,
             status: "",
           };
@@ -179,13 +225,13 @@ const extractLinksFromFiles = (path) => {
   });
 };
 
-extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
-  .then(links => {
-    console.log(links);
-  })
-  .catch(error => {
-    console.error(error);
-  });
+// extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
+//   .then(links => {
+//     console.log(links);
+//   })
+//   .catch(error => {
+//     console.error(error);
+//   });
 
 // Determina el status http
 const httpStatus = (url) => {
@@ -213,6 +259,7 @@ module.exports = {
   isAMdFile,
   emptyDirectory,
   hasMdFiles,
+  getLinks,
   extractLinksFromFiles,
   httpStatus,
 }
