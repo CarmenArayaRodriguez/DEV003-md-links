@@ -300,8 +300,13 @@ const linkStatsComplete = (array) => {
   })();
   const broken = (() => {
     const broken = array.filter((link) => {
-      const statusCode = link.status.match(/\d+/)[0]; 
-      return statusCode >= 400 || statusCode < 200; 
+      if (typeof link.status === 'string') {
+      const statusCodeMatch = link.status.match(/\d+/);
+      const statusCode = statusCodeMatch ? statusCodeMatch[0] : null;
+      return statusCode >= 400 || statusCode < 200;
+      } else {
+        return true; 
+      } 
     });
     return `${broken.length}`;
   })();

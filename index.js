@@ -1,4 +1,4 @@
-const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory,  hasMdFiles, getLinks, extractLinksFromFiles, linkStats } = require('./functions');
+const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, emptyDirectory,  hasMdFiles, getLinks, extractLinksFromFiles, linkStats, linkStatsComplete, } = require('./functions');
 
   const mdLinks = (path, options = {}) => {
     return new Promise((resolve, reject) => {
@@ -9,7 +9,13 @@ const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, 
         resolve(stats);
         return;
       }
-  
+    // Verificar si se requiere linkStatsComplete
+    if (options.linkStatsComplete) {
+      const links = options.fromFiles ? extractLinksFromFiles(path) : getLinks(path);
+      const stats = linkStatsComplete(links);
+      resolve(stats);
+      return;
+    }
       // Identificar si la ruta existe
       if (validatePath(path)) {
         // Identificar si la ruta es un directorio
@@ -60,7 +66,7 @@ const { validatePath, absoluteFilePath, transformPath, isADirectory, isAMdFile, 
     });
   };
   
-  mdLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas', { fromFiles: false, getLinks: false, linkStats: true, })
+  mdLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas', { fromFiles: true, getLinks: false, linkStats: false, linkStatsComplete: false })
     .then((stats) => {
       console.log(stats);
     })
