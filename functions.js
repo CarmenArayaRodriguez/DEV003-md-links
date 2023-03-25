@@ -215,7 +215,6 @@ const extractLinksFromFiles = (path) => {
             status: "",
           };
           links.push(link);
-          console.log(`Encontrado link: ${link.text} (${link.href}) en archivo: ${path}`);
           const options = url.parse(link.href);
           options.method = "HEAD";
           const promise = new Promise((resolve, reject) => {
