@@ -84,13 +84,13 @@ const mdLinks = (path, options) => {
   });
 };
 
-mdLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas', { validate: true, stats: true })
-  .then((links) => {
-    console.log(links);
-  })
-  .catch((err) => {
-    console.error(err);
-  });
+// mdLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas', { validate: true, stats: true })
+//   .then((links) => {
+//     console.log(links);
+//   })
+//   .catch((err) => {
+//     console.error(err);
+//   });
 
 
 module.exports = {
