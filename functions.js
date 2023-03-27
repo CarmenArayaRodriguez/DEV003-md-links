@@ -1,9 +1,9 @@
+const axios = require('axios');
 const fs = require('fs')
 const path = require('path')
 const pathLib = require('path')
 const http = require('https')
-const url = require ('url')
-const axios = require('axios');
+const url = require('url')
 
 const statusLinks = [
   {
@@ -19,15 +19,15 @@ const statusLinks = [
     status: 'OK - 200'
   },
   {
-    href: 'https://es-la.facebook.com/',
-    text: 'Facebook',
-    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md',
-    status: 'Fail - 302'
-  },
-  {
     href: 'https://github.com/',
     text: 'GitHub',
     file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md',
+    status: 'OK - 200'
+  },
+  {
+    href: 'https://es-la.facebook.com/',
+    text: 'Facebook',
+    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md',
     status: 'OK - 200'
   },
   {
@@ -40,14 +40,8 @@ const statusLinks = [
     href: 'https://www.grepper.com/tpc/how+to+extract+links+from+markdown+using+regular+expressions',
     text: 'Enlace roto',
     file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
-    status: 'Fail - 404'
-  },
-  {
-    href: 'https://www.google.com',
-    text: 'Google',
-    file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
-    status: 'OK - 200'
-  },
+    status: 'Fail - Request failed with status code 404'
+  }
 ]
 // Determina si es una ruta válida
 const validatePath = (firstPath) => {
@@ -61,8 +55,8 @@ const absoluteFilePath = (secondPath) => {
 
 // Transforma las rutas en absolutas
 const transformPath = (thirdPath) => {
-    return path.resolve(thirdPath);
-  } 
+  return path.resolve(thirdPath);
+}
 
 // Determina si es un directorio
 const isADirectory = (fourthPath) => {
@@ -99,7 +93,7 @@ function emptyDirectory(path) {
 const hasMdFiles = (dir) => {
   return new Promise((resolve, reject) => {
     let foundMdFiles = [];
-    let allMdFiles = []; 
+    let allMdFiles = [];
     fs.readdir(dir, (err, files) => {
       if (err) {
         reject(err);
@@ -126,7 +120,7 @@ const hasMdFiles = (dir) => {
 
         Promise.all(promises)
           .then(() => {
-            resolve(foundMdFiles.concat(allMdFiles)); 
+            resolve(foundMdFiles.concat(allMdFiles));
           })
           .catch((err) => {
             reject(err);
@@ -174,154 +168,199 @@ const getLinks = (dirPath) => {
 // const printlinks = getLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas');
 // console.log(printlinks)
 
+
 // Extrae los links desde archivos .md y entrega el status
-const extractLinksFromFiles = (path) => {
+const extractLinksFromFiles = (filePath) => {
   return new Promise((resolve, reject) => {
-    let links = [];
     try {
-      if (!fs.existsSync(path)) { 
+      if (!fs.existsSync(filePath)) {
         resolve([]);
         return;
       }
-      const stats = fs.statSync(path);
+      const stats = fs.statSync(filePath);
       if (stats.isDirectory()) {
-        const files = fs.readdirSync(path);
-        const promises = [];
-        files.forEach((file) => {
-          const absolutePath = pathLib.resolve(path, file);
-          const subLinksPromise = extractLinksFromFiles(absolutePath);
-          promises.push(subLinksPromise);
-          subLinksPromise.then(subLinks => {
-            links = links.concat(subLinks);
-          });
+        const files = fs.readdirSync(filePath);
+        const promises = files.map((file) => {
+          const subFilePath = path.join(filePath, file);
+          return extractLinksFromFiles(subFilePath);
         });
-        Promise.all(promises).then(() => {
-          if (links.length === 0) {
-            resolve([]);
-          } else {
-            resolve(links);
-          }
+        Promise.all(promises).then((subLinks) => {
+          const links = subLinks.flat();
+          resolve(links);
+        }).catch((error) => {
+          console.error(`Error al procesar las promesas: ${error.message}`);
+          reject(error);
         });
-      } else if (fs.existsSync(path) && isAMdFile(path)) {
-        const archivoMD = fs.readFileSync(path, "utf-8");
+      } else if (isAMdFile(filePath)) {
+        const archivoMD = fs.readFileSync(filePath, 'utf-8');
         const regex = /\[(.*)\]\((http[s]?:\/\/[^\)]*)\)/gm;
+        const links = [];
         let match;
-        const promises = [];
         while ((match = regex.exec(archivoMD))) {
           const link = {
             href: match[2],
-            text: match[1].slice(0,50),
-            file: path,
-            status: "",
+            text: match[1].slice(0, 50),
+            file: filePath,
           };
           links.push(link);
-          const options = url.parse(link.href);
-          options.method = "HEAD";
-          const promise = new Promise((resolve, reject) => {
-            const req = http.request(options, (res) => {
-              const status = res.statusCode;
-              if (status >= 200 && status < 300) {
-                link.status = `OK - ${status}`;
-              } else {
-                link.status = `Fail - ${status}`;
-              }
-              resolve();
-            });
-            req.on("error", (err) => {
-              console.error(`Error al hacer la solicitud: ${err.message}`);
-              resolve();
-            });
-            req.end();
-          });
-          promises.push(promise);
         }
-        Promise.all(promises).then(() => {
-          if (links.length === 0) {
-            resolve([]);
-          } else {
-            resolve(links);
-          }
-        });
+        resolve(links);
       } else {
         resolve([]);
       }
     } catch (error) {
-      console.error(error.message);
+      console.error(`Error al procesar la ruta: ${error.message}`);
       reject(error);
     }
   });
 };
+
+
+// Obtener el estado de cada enlace y devolver una lista completa de enlaces con su estado
+const httpStatus = (links) => {
+  const promises = links.map((link) => {
+    return axios
+      .get(link.href)
+      .then((response) => {
+        link.status = {
+          code: response.status,
+          message: response.statusText,
+        };
+        return link;
+      })
+      .catch((error) => {
+        link.status = {
+          code: error.code,
+          message: error.message,
+        };
+        return link;
+      });
+  });
+
+  return Promise.all(promises);
+};
+
+// Llamar a las funciones y obtener una lista completa de enlaces con su estado
 // extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
-//   .then(links => {
-//     console.log(links);
+//   .then((links) => {
+//     return httpStatus(links);
 //   })
-//   .catch(error => {
-//     console.error(error);
+//   .then((linksWithStatus) => {
+//     console.log(linksWithStatus);
+//   })
+//   .catch((err) => {
+//     console.error(err);
 //   });
 
-// Determina el status http
-const httpStatus = (url) => {
-  return axios
-    .get(url, { validateStatus: () => true })
-    .then((response) => {
-      return response.status;
-    })
-    .catch((error) => {
-      if (error.response) {
-        throw error.response;
-      } else if (error.request) {
-        throw { statusCode: 500 };
-      } else {
-        throw error;
-      }
-    });
-};
 
 // Entrega el total de links y la cantidad de links únicos 
 const linkStats = (array) => {
-  const total = `${array.length}`;
-  const unique = (() => {
-    const unique = new Set(array.map((link) => link.href));
-    return `${unique.size}`;
-  })();
+  const links = array.length;
+
+  const href = new Set(array.map((link) => link.href)).size;
   return {
-    total,
-    unique,
+    total: links,
+    unique: href
   };
 };
 // console.log(linkStats(statusLinks))
 
 //// Entrega el total de links, la cantidad de links únicos y la cantidad de links rotos 
-const linkStatsComplete = (array) => {
-  const total = `${array.length}`;
-  const unique = (() => {
-    const unique = new Set(array.map((link) => link.href));
-    return `${unique.size}`;
-  })();
-  const broken = (() => {
-    const broken = array.filter((link) => {
-      if (typeof link.status === 'string') {
-      const statusCodeMatch = link.status.match(/\d+/);
-      const statusCode = statusCodeMatch ? statusCodeMatch[0] : null;
-      return statusCode >= 400 || statusCode < 200;
-      } else {
-        return true; 
-      } 
-    });
-    return `${broken.length}`;
-  })();
+// const linkStatsComplete = (links) => {
+//   if (!Array.isArray(links)) return { total: 0, unique: 0, broken: 0 };
+//   const stats = {
+//     total: 0,
+//     unique: 0,
+//     broken: 0,
+//   };
 
-  return {
-    total,
-    unique,
-    broken
+//   const hrefs = [];
+
+//   links.forEach((link) => {
+//     stats.total++;
+
+//     if (!hrefs.includes(link.href)) {
+//       hrefs.push(link.href);
+//       stats.unique++;
+//     }
+
+//     if (link.status && link.status.code !== 200) {
+//       stats.broken++;
+//       const statusText = link.status.statusText || 'Fail';
+//       const message = `${statusText} - ${link.status.code}`;
+//       link.status = message;
+//     }
+//   });
+
+//   return stats;
+// };
+// const linkStatsComplete = (links) => {
+//   if (!Array.isArray(links)) return { total: 0, unique: 0, broken: 0 };
+//   const stats = {
+//     total: 0,
+//     unique: 0,
+//     broken: 0,
+//   };
+
+//   const hrefs = [];
+
+//   links.forEach((link) => {
+//     stats.total++;
+//     if (stats.broken > stats.total) {
+//       stats.broken = stats.total;
+//     }
+
+//     if (!hrefs.includes(link.href)) {
+//       hrefs.push(link.href);
+//       stats.unique++;
+//     }
+
+//     if (link.status && link.status.code !== 200) {
+//       stats.broken++;
+//       const statusText = link.status.statusText || 'Fail';
+//       const message = `${statusText} - ${link.status.code}`;
+//       link.status = message;
+//     }
+//   });
+
+//   return stats;
+// };
+
+const linkStatsComplete = (links) => {
+  if (!Array.isArray(links)) return { total: 0, unique: 0, broken: 0 };
+  const stats = {
+    total: 0,
+    unique: 0,
+    broken: 0,
   };
+
+  const hrefs = [];
+
+  links.forEach((link) => {
+    stats.total++;
+
+    if (!hrefs.includes(link.href)) {
+      hrefs.push(link.href);
+      stats.unique++;
+    }
+
+    if (link.status && link.status.code !== 200) {
+      stats.broken++;
+      const statusText = link.status.statusText || 'Fail';
+      const message = `${statusText} - ${link.status.code}`;
+      link.status = message;
+    }
+  });
+
+  return stats;
 };
-// console.log(linkStatsComplete(statusLinks))
+
+
+// console.log(linkStatsComplete(statusLinks));
 
 module.exports = {
   validatePath,
-  absoluteFilePath, 
+  absoluteFilePath,
   transformPath,
   isADirectory,
   isAMdFile,

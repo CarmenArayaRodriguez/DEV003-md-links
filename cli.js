@@ -1,11 +1,18 @@
-const { mdLinks} = require('./index.js');
+
+
+
+
+
+
+
+const { mdLinks } = require('./index.js');
 
 const path = process.argv[2];
 try {
   if (!path) {
     throw new Error('Debes proporcionar una ruta como argumento');
   } else {
-    mdLinks(path)
+    mdLinks(path, options)
       .then(links => {
         console.log(links);
         if (Array.isArray(links)) {
