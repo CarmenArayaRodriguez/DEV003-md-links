@@ -21,6 +21,7 @@ const mdLinks = (path, options) => {
                     return httpStatus(links).then((statusLinks) => {
                       if (options.stats) {
                         const stats = linkStatsComplete(statusLinks);
+                        // console.log(stats)
                         resolve(stats);
                       } else {
                         resolve(statusLinks);
@@ -84,13 +85,14 @@ const mdLinks = (path, options) => {
   });
 };
 
-// mdLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas', { validate: true, stats: true })
-//   .then((links) => {
-//     console.log(links);
-//   })
-//   .catch((err) => {
-//     console.error(err);
-//   });
+
+mdLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas', { validate: false })
+  .then((links) => {
+    console.log(links);
+  })
+  .catch((err) => {
+    console.error(err);
+  });
 
 
 module.exports = {

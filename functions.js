@@ -89,7 +89,7 @@ function emptyDirectory(path) {
   });
 }
 
-//Determina si hay archivos .md
+//Determina si hay archivos .md y devuelve la ruta
 const hasMdFiles = (dir) => {
   return new Promise((resolve, reject) => {
     let foundMdFiles = [];
@@ -240,18 +240,6 @@ const httpStatus = (links) => {
   return Promise.all(promises);
 };
 
-// Llamar a las funciones y obtener una lista completa de enlaces con su estado
-// extractLinksFromFiles('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
-//   .then((links) => {
-//     return httpStatus(links);
-//   })
-//   .then((linksWithStatus) => {
-//     console.log(linksWithStatus);
-//   })
-//   .catch((err) => {
-//     console.error(err);
-//   });
-
 
 // Entrega el total de links y la cantidad de links únicos 
 const linkStats = (array) => {
@@ -265,67 +253,7 @@ const linkStats = (array) => {
 };
 // console.log(linkStats(statusLinks))
 
-//// Entrega el total de links, la cantidad de links únicos y la cantidad de links rotos 
-// const linkStatsComplete = (links) => {
-//   if (!Array.isArray(links)) return { total: 0, unique: 0, broken: 0 };
-//   const stats = {
-//     total: 0,
-//     unique: 0,
-//     broken: 0,
-//   };
-
-//   const hrefs = [];
-
-//   links.forEach((link) => {
-//     stats.total++;
-
-//     if (!hrefs.includes(link.href)) {
-//       hrefs.push(link.href);
-//       stats.unique++;
-//     }
-
-//     if (link.status && link.status.code !== 200) {
-//       stats.broken++;
-//       const statusText = link.status.statusText || 'Fail';
-//       const message = `${statusText} - ${link.status.code}`;
-//       link.status = message;
-//     }
-//   });
-
-//   return stats;
-// };
-// const linkStatsComplete = (links) => {
-//   if (!Array.isArray(links)) return { total: 0, unique: 0, broken: 0 };
-//   const stats = {
-//     total: 0,
-//     unique: 0,
-//     broken: 0,
-//   };
-
-//   const hrefs = [];
-
-//   links.forEach((link) => {
-//     stats.total++;
-//     if (stats.broken > stats.total) {
-//       stats.broken = stats.total;
-//     }
-
-//     if (!hrefs.includes(link.href)) {
-//       hrefs.push(link.href);
-//       stats.unique++;
-//     }
-
-//     if (link.status && link.status.code !== 200) {
-//       stats.broken++;
-//       const statusText = link.status.statusText || 'Fail';
-//       const message = `${statusText} - ${link.status.code}`;
-//       link.status = message;
-//     }
-//   });
-
-//   return stats;
-// };
-
+// Entrega el total de links, la cantidad de links únicos y la cantidad de links rotos 
 const linkStatsComplete = (links) => {
   if (!Array.isArray(links)) return { total: 0, unique: 0, broken: 0 };
   const stats = {
@@ -334,21 +262,18 @@ const linkStatsComplete = (links) => {
     broken: 0,
   };
 
-  const hrefs = [];
+  const hrefs = new Set();
 
   links.forEach((link) => {
     stats.total++;
 
-    if (!hrefs.includes(link.href)) {
-      hrefs.push(link.href);
+    if (!hrefs.has(link.href)) {
+      hrefs.add(link.href);
       stats.unique++;
     }
 
     if (link.status && link.status.code !== 200) {
       stats.broken++;
-      const statusText = link.status.statusText || 'Fail';
-      const message = `${statusText} - ${link.status.code}`;
-      link.status = message;
     }
   });
 

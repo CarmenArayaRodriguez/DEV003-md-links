@@ -156,18 +156,6 @@ describe('extractLinksFromFiles', () => {
   });
 });
 
-// describe('httpStatus', () => {
-//   it('Debería devolver OK si el caso es exitoso', () => {
-//     return httpStatus('https://www.google.com/?hl=es').then((status) => {
-//       expect(status).toEqual(status);
-//     });
-//   });
-//   it('Debería devolver Fail si el caso falló', () => {
-//     return httpStatus('https://www.grepper.com/tpc/how+to+extract+links+from+markdown+using+regular+expressions').catch((err) => {
-//       expect(err).toEqual('Fail');
-//     });
-//   });
-// });
 describe('httpStatus', () => {
   it('Debería devolver OK si el caso es exitoso', () => {
     const links = [
@@ -238,28 +226,7 @@ describe('httpStatus', () => {
       ]);
     });
   });
-
-
-  // it('Debería devolver Fail si el caso falló', () => {
-  //   const links = [
-  //     { href: 'https://www.grepper.com/tpc/how+to+extract+links+from+markdown+using+regular+expressions', text: 'Enlace roto', file: 'example.md' }
-  //   ];
-  //   return expect(httpStatus(links)).rejects.toThrow('Fail');
-  // });
-  //   it('Debería devolver Fail si el caso falló', () => {
-  //     const links = [
-  //       { href: 'https://www.grepper.com/tpc/how+to+extract+links+from+markdown+using+regular+expressions', text: 'Enlace roto', file: 'example.md' }
-  //     ];
-  //     return httpStatus(links)
-  //       .then((result) => {
-  //         throw new Error('La petición debería haber fallado');
-  //       })
-  //       .catch((error) => {
-  //         expect(error).toBe('Fail');
-  //       });
-  //     });
-  // });
-  it('Debería devolver Fail si el caso falló', () => {
+  it('Debería devolver error si el caso falló', () => {
     const links = [{ href: 'https://www.grepper.com/tpc/how+to+extract+links+from+markdown+using+regular+expressions', text: 'Enlace roto', file: 'example.md' }];
     return httpStatus(links)
       .then((result) => {
@@ -267,7 +234,6 @@ describe('httpStatus', () => {
       });
   });
 });
-
 
 describe('linkStats', () => {
   test('Dedería devolver el número de enlaces totales y únicos', () => {
@@ -322,52 +288,82 @@ describe('linkStats', () => {
   });
 });
 
+// describe('linkStatsComplete', () => {
+//   test('Debería devolver el número de enlaces totales, únicos y rotos', () => {
+//     const links = [{
+//       href: 'https://www.24horas.cl/',
+//       text: '24 Horas',
+//       file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
+//       status: 'OK - 200'
+//     },
+//     {
+//       href: 'https://www.cnnchile.com/',
+//       text: 'CNN Chile Lorem ipsum dolor sit amet, consectetuer',
+//       file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
+//       status: 'OK - 200'
+//     },
+//     {
+//       href: 'https://es-la.facebook.com/',
+//       text: 'Facebook',
+//       file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md',
+//       status: 'Fail - 302'
+//     },
+//     {
+//       href: 'https://github.com/',
+//       text: 'GitHub',
+//       file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md',
+//       status: 'OK - 200'
+//     },
+//     {
+//       href: 'https://www.google.com',
+//       text: 'Google',
+//       file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
+//       status: 'OK - 200'
+//     },
+//     {
+//       href: 'https://www.grepper.com/tpc/how+to+extract+links+from+markdown+using+regular+expressions',
+//       text: 'Enlace roto',
+//       file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
+//       status: 'Fail - 404'
+//     },
+//     {
+//       href: 'https://www.google.com',
+//       text: 'Google',
+//       file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
+//       status: 'OK - 200'
+//     },];
+
+//     const expected = { total: 7, unique: 5, broken: 1 };
+
+//     const result = linkStatsComplete(links);
+
+//     expect(result).toEqual(expected);
+//   });
+// });
 describe('linkStatsComplete', () => {
   test('Debería devolver el número de enlaces totales, únicos y rotos', () => {
-    const links = [{
-      href: 'https://www.24horas.cl/',
-      text: '24 Horas',
-      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
-      status: 'OK - 200'
-    },
-    {
-      href: 'https://www.cnnchile.com/',
-      text: 'CNN Chile Lorem ipsum dolor sit amet, consectetuer',
-      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
-      status: 'OK - 200'
-    },
-    {
-      href: 'https://es-la.facebook.com/',
-      text: 'Facebook',
-      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md',
-      status: 'Fail - 302'
-    },
-    {
-      href: 'https://github.com/',
-      text: 'GitHub',
-      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md',
-      status: 'OK - 200'
-    },
-    {
-      href: 'https://www.google.com',
-      text: 'Google',
-      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
-      status: 'OK - 200'
-    },
-    {
-      href: 'https://www.grepper.com/tpc/how+to+extract+links+from+markdown+using+regular+expressions',
-      text: 'Enlace roto',
-      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
-      status: 'Fail - 404'
-    },
-    {
-      href: 'https://www.google.com',
-      text: 'Google',
-      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
-      status: 'OK - 200'
-    },];
+    const links = [
+      {
+        href: 'https://www.google.com',
+        text: 'Google',
+        file: 'path/to/file.md',
+        status: { code: 200, statusText: 'OK' }
+      },
+      {
+        href: 'https://www.google.com',
+        text: 'Google',
+        file: 'path/to/other/file.md',
+        status: { code: 404, statusText: 'Not Found' }
+      },
+      {
+        href: 'https://www.facebook.com',
+        text: 'Facebook',
+        file: 'path/to/file.md',
+        status: { code: 200, statusText: 'OK' }
+      }
+    ];
 
-    const expected = { total: 7, unique: 5, broken: 1 };
+    const expected = { total: 3, unique: 2, broken: 1 };
 
     const result = linkStatsComplete(links);
 

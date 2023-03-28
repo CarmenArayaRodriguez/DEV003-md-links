@@ -1,35 +1,30 @@
-#!/usr/bin/env node
-const { extractLinksFromFiles, linkStatsComplete, linkStats, getLinks } = require('./functions.js');
 const { mdLinks } = require('./index.js');
 
-const path = process.argv[2];
-const validate = process.argv.includes('--validate');
-const stats = process.argv.includes('--stats');
-const options = { validate, stats };
+const args = process.argv.slice(2);
+
+const path = args[0];
+const options = {
+  validate: args.includes('--validate'),
+  stats: args.includes('--stats'),
+};
 
 mdLinks(path, options)
-  .then(links => {
-    if (stats && validate) {
-      const result = linkStatsComplete(links);
-      console.log(result);
-    } else if (validate) {
-      const result = extractLinksFromFiles(path);
-      console.log(result);
-    } else if (stats) {
-      const result = linkStats(links);
-      console.log(result);
+  .then((result) => {
+    if (Array.isArray(result)) {
+      const obj = {
+        links: result,
+        stats: linkStats(result),
+      };
+      console.log(obj);
     } else {
-      console.log(getLinks(links));
+      const obj = {
+        message: result,
+      };
+      console.log(obj);
     }
   })
-  .catch((error) => {
-    console.error(error.message);
+  .catch((err) => {
+    console.error(err);
   });
 
-mdLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas', { validate: true, stats: true, })
-  .then((result) => {
-    console.log(result);
-  })
-  .catch((error) => {
-    console.error(error);
-  });
+
