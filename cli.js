@@ -26,10 +26,18 @@ mdLinks(path, options)
     console.error(error.message);
   });
 
-mdLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas', { validate: true, stats: true, })
-  .then((result) => {
-    console.log(result);
-  })
-  .catch((error) => {
-    console.error(error);
-  });
+// mdLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas')
+//   .then((result) => {
+//     console.log(result);
+//   })
+//   .catch((error) => {
+//     console.error(error);
+//   });
+
+// mdLinks('/Users/carmen/Desktop/DEV003-md-links/Pruebas', { stats: true })
+//   .then((links) => {
+//     console.log(links);
+//   })
+//   .catch((err) => {
+//     console.error(err);
+//   });

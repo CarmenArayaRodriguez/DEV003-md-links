@@ -328,46 +328,43 @@ describe('linkStatsComplete', () => {
       href: 'https://www.24horas.cl/',
       text: '24 Horas',
       file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
-      status: 'OK - 200'
+      status: { code: 200, message: 'OK' }
     },
     {
       href: 'https://www.cnnchile.com/',
       text: 'CNN Chile Lorem ipsum dolor sit amet, consectetuer',
       file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/SuDirMd/links.md',
-      status: 'OK - 200'
-    },
-    {
-      href: 'https://es-la.facebook.com/',
-      text: 'Facebook',
-      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md',
-      status: 'Fail - 302'
+      status: { code: 200, message: 'OK' }
     },
     {
       href: 'https://github.com/',
       text: 'GitHub',
       file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/bye.md',
-      status: 'OK - 200'
+      status: { code: 200, message: 'OK' }
+    },
+    {
+      href: 'https://es-la.facebook.com/',
+      text: 'Facebook',
+      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/DirectorioConMd/hola.md',
+      status: { code: 200, message: 'OK' }
     },
     {
       href: 'https://www.google.com',
       text: 'Google',
       file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
-      status: 'OK - 200'
+      status: { code: 200, message: 'OK' }
     },
     {
       href: 'https://www.grepper.com/tpc/how+to+extract+links+from+markdown+using+regular+expressions',
       text: 'Enlace roto',
       file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
-      status: 'Fail - 404'
-    },
-    {
-      href: 'https://www.google.com',
-      text: 'Google',
-      file: '/Users/carmen/Desktop/DEV003-md-links/Pruebas/TEXT.md',
-      status: 'OK - 200'
-    },];
+      status: {
+        code: 'ERR_BAD_REQUEST',
+        message: 'Request failed with status code 404'
+      }
+    }];
 
-    const expected = { total: 7, unique: 5, broken: 1 };
+    const expected = { total: 6, unique: 6, broken: 1 };
 
     const result = linkStatsComplete(links);
 
